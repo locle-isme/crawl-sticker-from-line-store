@@ -90,7 +90,7 @@ function remove_folder($path)
 
 function check_URL($url)
 {
-    $flag = preg_match("/product\/([a-z0-9]+)\/:?en/", $url, $matches);
+    $flag = preg_match("/product\/([a-z0-9]+)\/{0,1}/", $url, $matches);
     return ($flag) ? $matches : false;
 }
 
