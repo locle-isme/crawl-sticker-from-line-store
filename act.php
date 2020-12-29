@@ -2,8 +2,11 @@
 header('content-type: application/json');
 include 'simplehtmldom_1_9_1/simple_html_dom.php';
 $response = [];
-$link = 'https://store.line.me/stickershop/product/13974331/en';
-$url_sticker = htmlspecialchars_decode($link);
+$data = json_decode(file_get_contents('php://input'), true);
+$url_sticker = isset($data['url']) ? htmlspecialchars_decode($data['url']) : "";
+$is_continue = isset($data['is_continue']) ? boolval($data['is_continue']) : 0;
+//print_r($data);
+//return;
 $matches = check_URL($url_sticker);
 //print_r($matches);
 if ($matches) {
@@ -14,13 +17,14 @@ if ($matches) {
     $images = $html->find('.FnImage');
     $my_zip = new ZipArchive();
     create_folder($path);
-    if (file_exists($zip_name)) {
+    if (file_exists($zip_name) && $is_continue == false) {
         $response = [
-            'status_code' => 400,
-            'message' => 'File already on system, continue?',
+            'status_code' => 100,
+            'url' => $zip_name,
+            'message' => 'File already on system, Do you wanna continue?',
             'type' => 'error'
         ];
-    } else if ($my_zip->open($zip_name, ZipArchive::CREATE) !== true) {
+    } else if ($my_zip->open($zip_name, ZipArchive::CREATE) !== true && $is_continue == false) {
         $response = [
             'status_code' => 500,
             'message' => 'Can not create zip file. Try again later!',
@@ -48,10 +52,11 @@ if ($matches) {
     }
 
     remove_folder($path);
+
 } else {
     $response = [
         'status_code' => 400,
-        'message' => 'URL not valid!',
+        'message' => 'URL not valid! ',
         'type' => 'error'
     ];
 }
@@ -85,7 +90,7 @@ function remove_folder($path)
 
 function check_URL($url)
 {
-    $flag = preg_match("/product\/([a-z0-9]+)\/?en/", $url, $matches);
+    $flag = preg_match("/product\/([a-z0-9]+)\/:?en/", $url, $matches);
     return ($flag) ? $matches : false;
 }
 

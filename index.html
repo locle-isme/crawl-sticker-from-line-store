@@ -23,7 +23,7 @@
 
 <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">Fixed navbar</a>
+        <a class="navbar-brand" href="#">LINE Emojishop</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
                 aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -31,19 +31,19 @@
         <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav me-auto mb-2 mb-md-0">
                 <li class="nav-item active">
-                    <a class="nav-link" aria-current="page" href="#">Home</a>
+                    <a class="nav-link" aria-current="page" href="">Home</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Link</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
-                </li>
+<!--                <li class="nav-item">-->
+<!--                    <a class="nav-link" href="#">Link</a>-->
+<!--                </li>-->
+<!--                <li class="nav-item">-->
+<!--                    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>-->
+<!--                </li>-->
             </ul>
-            <form class="d-flex">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success" type="submit">Search</button>
-            </form>
+<!--            <form class="d-flex">-->
+<!--                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">-->
+<!--                <button class="btn btn-outline-success" type="submit">Search</button>-->
+<!--            </form>-->
         </div>
     </div>
 </nav>
@@ -64,7 +64,26 @@
                             </div>
                         </div>
                         <div class="col-2 d-grid">
-                            <button type="submit" class="btn btn-primary" @click="getLink">GET</button>
+                            <button type="submit" class="btn btn-primary" @click.prevent="getLink" :disabled="isLoading">GET</button>
+                        </div>
+                    </div>
+                    <div v-if="isLoading" class="row my-2 g-3 justify-content-center">
+                        <img style="width: 300px;height: auto" src="https://bigcoinvietnam.com/theme/frontend/images/loading.gif" alt="">
+                    </div>
+                    <div class="row my-2 g-3">
+                        <div class="col">
+                            <div v-if="toast.message && toast.type"
+                                 :class="{'alert':true, 'alert-danger': toast.type == 'error', 'alert-success': toast.type == 'success'}">
+                                {{toast.message}}
+                            </div>
+                        </div>
+                    </div>
+                    <div v-if="resultResponse.isShow" class="row my-2 g-3 align-items-center">
+                        <div class="col d-grid">
+                            <a class="btn btn-success" :href="resultResponse.url" download>Download</a>
+                        </div>
+                        <div v-if="showContinue.isShow" class="col d-grid">
+                            <button class="btn btn-danger" @click.prevent="getLink($event, 1)">Continue</button>
                         </div>
                     </div>
                 </div>
