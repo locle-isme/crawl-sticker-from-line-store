@@ -3,7 +3,8 @@ const app = new Vue({
         return {
             form: {
                 url: "https://store.line.me/stickershop/product/13493978/en",
-                is_continue: 0
+                is_continue: 0,
+                size: 1
             },
 
             resultResponse: {
@@ -18,6 +19,14 @@ const app = new Vue({
                 type: null,
                 message: null
             },
+
+            optionSizes: [
+                {id: 0, name: '50 x 50'},
+                {id: 1, name: '100 x 100', select: true},
+                {id: 2, name: '150 x 150'},
+                {id: 3, name: '200 x 200'},
+                {id: 4, name: '250 x 250'},
+            ],
 
             isLoading: false,
         }

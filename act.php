@@ -2,22 +2,28 @@
 header('content-type: application/json');
 include 'simplehtmldom_1_9_1/simple_html_dom.php';
 $response = [];
-$data = json_decode(file_get_contents('php://input'), true);
+$data = json_decode(file_get_contents('php://input'), true); //get json params request
 $url_sticker = isset($data['url']) ? htmlspecialchars_decode($data['url']) : "";
 $is_continue = isset($data['is_continue']) ? boolval($data['is_continue']) : 0;
+$size = isset($data['size']) ? info_size($data['size']) : -1;
 //print_r($data);
 //return;
 $matches = check_URL($url_sticker);
-//print_r($matches);
-if ($matches) {
+if ($size == -1) {
+    $response = [
+        'status_code' => 400,
+        'message' => 'Size not valid',
+        'type' => 'error'
+    ];
+} else if ($matches) {
     $id = $matches[1];
-    $path = 'uploads/' . $id;
+    $path = 'uploads/' . $id . '-' . $size;
     $zip_name = $path . ".zip";
     $html = file_get_html($url_sticker);
-    $images = $html->find('.FnImage');
+    $images = $html->find('.FnImage'); //get dom image
     $my_zip = new ZipArchive();
-    create_folder($path);
-    if (file_exists($zip_name) && $is_continue == false) {
+    create_folder($path); //check folder and create folder
+    if (file_exists($zip_name) && $is_continue == false) { //check exist file
         $response = [
             'status_code' => 100,
             'url' => $zip_name,
@@ -34,11 +40,11 @@ if ($matches) {
         foreach ($images as $key => $image) {
             if (isset($image->find('span', 0)->style)) {
                 $style = $image->find('span', 0)->style;
-                $url = find_URL($style);
+                $url = find_URL($style); //get url image
                 $image_name = $path . '/' . $key . '.png';
-                file_put_contents($image_name, file_get_contents($url));
-                resize_image($image_name, 75, 75);
-                $my_zip->addFile($image_name);
+                file_put_contents($image_name, file_get_contents($url)); //save file
+                resize_image($image_name, $size, $size); //resize and re-save file
+                $my_zip->addFile($image_name); //add file to zip
             }
         }
 
@@ -51,12 +57,12 @@ if ($matches) {
         ];
     }
 
-    remove_folder($path);
+    remove_folder($path); //remove folder and file in this
 
 } else {
     $response = [
         'status_code' => 400,
-        'message' => 'URL not valid! ',
+        'message' => 'URL not valid',
         'type' => 'error'
     ];
 }
@@ -125,3 +131,9 @@ function resize_image($file, $w, $h, $crop = FALSE)
     imagepng($dst, $file);
 }
 
+
+function info_size($type)
+{
+    $sizes = [50, 100, 150, 200, 250];
+    return $type < count($sizes) ? $sizes[$type] : -1;
+}
