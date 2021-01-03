@@ -1,6 +1,7 @@
 const app = new Vue({
     data() {
         return {
+            listURL: ['tlgrm.eu', 'store.line.me'], //list url valid in site
             form: {
                 url: "https://store.line.me/stickershop/product/13493978/en",
                 is_continue: 0,
@@ -53,6 +54,11 @@ const app = new Vue({
                                 resultResponse.isShow = true;
                                 resultResponse.url = data.url;
                             }
+                            if (status_code == 101) {
+                                showContinue.isShow = true;
+                                resultResponse.isShow = true;
+                                resultResponse.url = null;
+                            }
                         } else if (type == "success") {
                             resultResponse.isShow = true;
                             resultResponse.url = data.url;
@@ -79,6 +85,7 @@ const app = new Vue({
             const {resultResponse} = this;
             showContinue.isShow = false;
             resultResponse.isShow = false;
+            resultResponse.url = null;
             this.setToast({type: null, message: null});
         },
 
@@ -93,10 +100,13 @@ const app = new Vue({
     },
 
     computed: {
+
+        //check valid contains from url list site allowed to continue.
         validURL() {
             const {form} = this;
-            let pattern = new RegExp("^https:\\/\\/store\\.line\\.me\\/");
-            return !!pattern.test(form.url);
+            const newURL = new URL(form.url);
+            return this.listURL.includes(newURL.hostname);
         }
     }
+
 }).$mount('#app')
